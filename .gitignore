@@ -1,0 +1,27 @@
+# Data / weights / outputs
+data/
+checkpoints/
+runs/
+wandb/
+*.pth
+*.pt
+*.ckpt
+*.bin
+*.h5
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Notebooks
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+
+# Logs
+*.log
+
+# External checkpoint folders (keep weights/ckpts out of git)
+external/**/vqvae_ckpts/

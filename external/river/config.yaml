@@ -1,0 +1,54 @@
+name: "davinci_river_vqmuse"
+
+data:
+  data_root: /content/data
+  input_size: 256
+  crop_size: 256
+  frames_per_sample: 5
+  skip_frames: 0
+  random_time: True
+  random_horizontal_flip: False
+  aug: False
+  albumentations: True
+
+model:
+  sigma: 1.0e-7
+
+  vector_field_regressor:
+    state_size: 64
+    state_res: [16, 16]
+    inner_dim: 768
+    depth: 4
+    mid_depth: 5
+    out_norm: "bn"
+
+  autoencoder:
+    type: "vqmuse"
+
+training:
+  batching:
+    batch_size: 8
+    num_workers: 4
+
+  optimizer:
+    learning_rate: 1.0e-4
+    weight_decay: 5.0e-6
+    num_warmup_steps: 5000
+    num_training_steps: 10000 #20000
+
+  num_observations: 5
+  condition_frames: 1
+  frames_to_generate: 4
+
+  loss_weights:
+    flow_matching_loss: 1.0
+
+evaluation:
+  batching:
+    batch_size: 4
+    num_workers: 4
+
+  num_observations: 8
+  condition_frames: 4
+  frames_to_generate: 4
+  steps: 100
