@@ -20,7 +20,7 @@ This repo emphasizes **reproducible, apples-to-apples evaluation** across method
   - `external/LLaMA-Adapter/`
 
 - `src/`  
-  Project “glue” code (datasets, evaluation wrappers, shared utilities):
+  Project code (datasets, evaluation wrappers, shared utilities):
   - `src/shared/` (VQ-Muse wrapper, manifest utilities, etc.)
   - `src/metrics/` (shared metrics: KID / PSNR / SSIM)
   - `src/river_cfm/`, `src/dyneode/`, `src/llama_adapter/` (method-specific wrappers)
@@ -41,7 +41,7 @@ This repo emphasizes **reproducible, apples-to-apples evaluation** across method
 
 ## Status
 
-The initial commit provides scaffolding plus core evaluation/metric utilities.  
+The initial commit provides scaffolding code plus core evaluation/metric utilities.  
 Over the next few days, this will be populated with:
 - standalone `train.py` / `eval.py` wrappers for each method
 - a single “evaluate-all” script/notebook that reproduces the paper tables/figures
@@ -76,7 +76,7 @@ Scripts will be finalized shortly.
 
 ## Acknowledgements / Upstream Methods
 
-This repo builds on the following excellent open-source projects:
+This repo builds on the following open-source projects:
 
 - **LLaMA-Adapter V2** (Gao et al., 2023) — https://github.com/OpenGVLab/LLaMA-Adapter/
 - **RIVER** (Davtyan et al., ICCV 2023) — https://github.com/araachie/river
