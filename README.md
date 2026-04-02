@@ -73,3 +73,35 @@ Shared implementations live in `src/metrics/metrics.py`.
 ## Running (draft)
 
 Scripts will be finalized shortly.
+
+## Acknowledgements / Upstream Methods
+
+This repo builds on the following excellent open-source projects:
+
+- **LLaMA-Adapter V2** (Gao et al., 2023) — https://github.com/OpenGVLab/LLaMA-Adapter/
+- **RIVER** (Davtyan et al., ICCV 2023) — https://github.com/araachie/river
+- **DynODE** (Xia et al., 2022) — https://github.com/weihaox/DynODE
+
+### BibTeX
+```bibtex
+@article{gao2023llama,
+  title={Llama-adapter v2: Parameter-efficient visual instruction model},
+  author={Gao, Peng and Han, Jiaming and Zhang, Renrui and Lin, Ziyi and Geng, Shijie and Zhou, Aojun and Zhang, Wei and Lu, Pan and He, Conghui and Yue, Xiangyu and others},
+  journal={arXiv preprint arXiv:2304.15010},
+  year={2023}
+}
+
+@inproceedings{davtyan2023efficient,
+  title={Efficient video prediction via sparsely conditioned flow matching},
+  author={Davtyan, Aram and Sameni, Sepehr and Favaro, Paolo},
+  booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision},
+  pages={23263--23274},
+  year={2023}
+}
+
+@article{xia2022modelling,
+  title={Modelling latent dynamics of stylegan using neural odes},
+  author={Xia, Weihao and Yang, Yujiu and Xue, Jing-Hao},
+  journal={arXiv preprint arXiv:2208.11197},
+  year={2022}
+}
