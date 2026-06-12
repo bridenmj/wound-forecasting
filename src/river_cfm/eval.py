@@ -155,3 +155,55 @@ class EvalWrapper(Dataset):
         data, raw_frames = self.base[idx]   # base must use return_raw_frames=True
         seq_len = raw_frames.shape[0]
         return data, seq_len
+        
+def load_model_checkpoint(model, path, device="cuda"):
+    ckpt = torch.load(path, map_location=device)
+
+    is_ddp = any(k.startswith("module.") for k in ckpt["model"].keys())
+
+    if is_ddp:
+        state = {k.replace("module.", "", 1): v for k, v in ckpt["model"].items()}
+    else:
+        state = ckpt["model"]
+
+    model.load_state_dict(state)
+    return ckpt.get("global_step", None)
+
+def get_fn_name(fn):
+    tmp = fn.split("/")[-1]
+    str_ = tmp.split(".")[0]
+    return str_
+    
+def load_sequence(image_paths, image_size=256):
+    imgs = []
+    for p in image_paths:
+        img = Image.open(p).convert("RGB").resize((image_size, image_size))
+        arr = np.array(img).astype(np.float32) / 255.0  # [0,1]
+        imgs.append(arr)
+
+    imgs = np.stack(imgs, axis=0)  # [T, H, W, C]
+    return torch.from_numpy(imgs)  # [T, H, W, C]
+
+def prepare_river_inputs(image_paths, device="cuda"):
+    seq = load_sequence(image_paths)  # [T, H, W, C]  ← KEEP THIS
+
+    context = seq[:4].unsqueeze(0)   # [1, 4, H, W, C]
+    reference = seq.unsqueeze(0)     # [1, 8, H, W, C]
+
+    return context.to(device), reference.to(device)
+    
+@torch.no_grad()
+def run_river_single(model, context, device="cuda",steps=100):
+    model.eval()
+
+    context_cf = context.permute(0, 1, 4, 2, 3).contiguous()  # [B, T, C, H, W]
+
+    generated = model.generate_frames(
+        context_cf,
+        num_frames=4,
+        past_horizon=1,
+        verbose=True,
+        steps=steps
+    )
+
+    return generated
