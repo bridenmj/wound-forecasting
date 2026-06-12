@@ -1,6 +1,6 @@
 # Longitudinal Wound Progression Modeling Under Sparse Sampling: A Comparative Study of Discrete and Continuous Generative Frameworks
 
-Llongitudinal wound trajectory forecasting under sparse and irregular clinical sampling.  
+Longitudinal wound trajectory forecasting under sparse and irregular clinical sampling.  
 This repository compares three complementary generative paradigms under a consistent held-out evaluation protocol:
 
 - **River-CFM**: sparsely conditioned flow matching for video prediction (adapted to wound sequences)
