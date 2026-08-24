@@ -1,0 +1,44 @@
+data:
+  albumentations: true
+  crop_size: 256
+  data_root: ${DATA_ROOT}
+  frames_per_sample: 5
+  input_size: 256
+  random_horizontal_flip: true
+  random_time: true
+  skip_frames: 0
+evaluation:
+  batching: {batch_size: 1, num_workers: 4}
+  condition_frames: 4
+  frames_to_generate: 4
+  num_observations: 8
+  steps: 100
+model:
+  autoencoder: {type: vqmuse}
+  sigma: 1.0e-7
+  target_skew_power: 0.5
+  self_cond_prob: 0.5
+  vector_field_regressor:
+    depth: 2
+    dropout: 0.075
+    inner_dim: 384
+    mid_depth: 3
+    out_norm: ln
+    state_res: [16, 16]
+    state_size: 64
+name: davinci_river_vqmuse
+training:
+  batching: {batch_size: 1, num_workers: 4}
+  condition_frames: 4
+  frames_to_generate: 1
+  loss_weights: {flow_matching_loss: 1.0}
+  num_observations: 5
+  optimizer:
+    learning_rate: 0.0001
+    num_training_steps: 40000
+    num_warmup_steps: 5000
+    weight_decay: 3.2e-5
+    gradient_accumulation_steps: 4
+    rollout_loss_prob: 0.0
+    rollout_loss_weight: 0.0
+
