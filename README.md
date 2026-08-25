@@ -37,11 +37,12 @@ the forecasting system:
 Credentials, machine-specific paths, datasets, and model checkpoints are not
 committed to the source repository.
 
-The public API currently includes subject-level manifest selection, KID, and
-targetwise PSNR/SSIM, the final variable-context DyneODE architecture, and the
-project-specific LLaMA-Adapter generation boundary. River's final configuration
-and a parameterized launcher are included; the launcher expects the external
-River source tree to be supplied explicitly.
+The package includes subject-level manifest selection; the final variable-
+context DyneODE architecture, training loop, and inference pipeline; the
+wound-specific LLaMA-Adapter token dataset, adapter training, inference, and
+evaluation pipeline; River checkpoint loading and evaluation; and shared KID
+and targetwise PSNR/SSIM implementations. Upstream LVM, VQ-MUSE, StyleGAN, and
+River implementations remain explicit external dependencies.
 
 ## Install for development
 
@@ -55,6 +56,28 @@ real trajectory, checkpoint loading, metric regression, and a one-step training
 smoke test—follow [docs/colab_verification.md](docs/colab_verification.md).
 
 ## Public entry points
+
+Train and evaluate the final variable-context DyneODE model:
+
+```bash
+python scripts/train_dyneode.py --help
+python scripts/evaluate_dyneode.py --help
+```
+
+Train the wound-specific LLaMA adapter without saving a duplicate 7B base
+checkpoint, then evaluate its released adapter delta:
+
+```bash
+python scripts/train_llama_adapter.py --help
+python scripts/evaluate_llama_adapter.py --help
+```
+
+River uses its separately obtained implementation and VQ-MUSE dependency:
+
+```bash
+python scripts/train_river.py --help
+python scripts/evaluate_river.py --help
+```
 
 Evaluate saved, one-prediction-per-target image pools consistently across all
 three models:
@@ -89,13 +112,27 @@ python scripts/plot_sequence_grid.py sequence.pt --output sequence.png
 
 - `wound_forecasting.dyneode` contains the time-aware GRU context encoder,
   context-conditioned vector field, broadcast-W validation, and conditioned ODE
-  integration from the final variable-context experiment.
-- `wound_forecasting.llama_adapter` contains only this project's deterministic
-  suffix-generation, strict adapter-delta loading, and VQ decoding additions.
-  The upstream LLaMA-Adapter project is not presented as original work.
-- `configs/river_final.yaml` records the final River configuration, while
-  `scripts/train_river.py` provides a path-parameterized interface to an
-  externally managed River source checkout.
+  integration from the final variable-context experiment. The adjacent data,
+  training, inference, and StyleGAN-boundary modules implement the complete
+  project workflow.
+- `wound_forecasting.llama_data`, `llama_training`, `llama_inference`, and
+  `llama_adapter` implement this project's aligned-burst tokenization,
+  autoregressive dataset, adapter-only checkpoints, deterministic generation,
+  and corrected one-prediction-per-target evaluation. The upstream
+  LLaMA-Adapter project is not presented as original work.
+- `wound_forecasting.river` provides strict River-only checkpoint loading and
+  aligned variable-length evaluation. `configs/river_final.yaml` and the two
+  River scripts provide path-parameterized interfaces to the external River
+  implementation.
+
+## Evaluation contract
+
+All paper-comparison evaluators use the same unit of analysis: one generated
+image for each unique target image. Relative forecast positions are reported as
+H1 through H4 even where LLaMA internally addresses absolute sequence positions
+4 through 7. The expected combined held-out counts are 60, 40, 20, and 10,
+respectively (130 targets overall). PSNR and SSIM are averaged over those unique
+prediction-target pairs; pooled KID is weighted by the available target count.
 
 ## Data and weights
 
@@ -111,7 +148,7 @@ and external dependencies.
 | StyleGAN | [bridenmj/wound-stylegan](https://huggingface.co/bridenmj/wound-stylegan) | Wound-domain StyleGAN generator and configuration |
 | DyneODE | [bridenmj/wound-dyneode](https://huggingface.co/bridenmj/wound-dyneode) | Final variable-context DyneODE checkpoint and configuration |
 | River | [bridenmj/wound-river](https://huggingface.co/bridenmj/wound-river) | River-only weights and final configuration; VQ-MUSE weights are excluded |
-| Processed data | [bridenmj/porcine-wound-forecasting-processed](https://huggingface.co/datasets/bridenmj/porcine-wound-forecasting-processed) | Forthcoming processed images and model-ready derived data |
+| Processed data | [bridenmj/porcine-wound-forecasting-processed](https://huggingface.co/datasets/bridenmj/porcine-wound-forecasting-processed) | Processed images, DyneODE inversion latents, and River HDF5 data |
 
 These repositories remain private while release permissions and licensing are
 being finalized. The links will become accessible when their respective

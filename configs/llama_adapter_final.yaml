@@ -1,0 +1,43 @@
+seed: 0
+device: cuda
+
+data:
+  image_root: ${IMAGE_ROOT}
+  manifest: ${MANIFEST_PATH}
+  prompts: ${PROMPT_PATH}
+  train_pigs: [ID1323, ID1324, ID1326, ID1327]
+  test_pigs: [ID1325, ID1328]
+  minimum_days: 5
+  num_samples: 2000
+  workers: 0
+
+model:
+  base_repository: Emma02/LVM_ckpts
+  vq_repository: Emma02/vqvae_ckpts
+  llama_type: 7B
+  max_sequence_length: 2048
+  image_adapter_length: 32
+  text_adapter_length: 32
+  query_layer: 30
+  text_in_layers: 4
+  use_text: true
+  maximum_batch_size: 20
+  phase: pretrain
+
+training:
+  epochs: 25
+  batch_size: 3
+  validation_batch_size: 5
+  gradient_accumulation_steps: 2
+  learning_rate: 0.001
+  minimum_learning_rate: 0.00005
+  weight_decay: 0.02
+  validation_every: 25
+  checkpoint_selection_metric: kid_overall_mean
+
+generation:
+  predictions_per_target: 1
+  temperature: 1.0
+  top_p: 0.95
+  maximum_forward_batch_size: 20
+  kid_subsets: 50

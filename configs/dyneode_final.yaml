@@ -1,0 +1,44 @@
+seed: 42
+device: cuda
+
+data:
+  latent_root: ${LATENT_ROOT}
+  train_split: train
+  development_validation_split: val
+  held_out_split: test
+  fold_development_validation_into_training: true
+  enumerate_held_out_bursts: true
+  minimum_frames: 2
+
+model:
+  style_dim: 512
+  hidden_dim: 64
+  depth: 3
+  context_encoder_type: gru
+  context_hidden_dim: 64
+  time_scale: 21.0
+  min_context_size: 1
+  max_context_size: 7
+  visualization_context_size: 4
+
+generator:
+  repository: bridenmj/wound-stylegan
+  filename: network-snapshot-005000_jmir_50000_redo_.pt
+  image_size: 256
+  style_dim: 512
+  mapping_network_depth: 8
+  channel_multiplier: 2
+
+training:
+  epochs: 75
+  batch_size: 1
+  learning_rate: 0.0001
+  weight_decay: 0.0001
+  validation_every: 25
+  early_stopping_patience: 8
+  latent_loss_weight: 0.5
+  perceptual_loss_weight: 0.5
+  latent_loss_scale: 7.0
+  perceptual_loss_scale: 0.45
+  lpips_network: alex
+  selection_metric: lpips_loss

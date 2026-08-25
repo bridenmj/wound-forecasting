@@ -13,7 +13,6 @@ import numpy as np
 import torch
 from torch import Tensor
 
-
 ADAPTER_DELTA_FORMAT = "wound_forecasting_adapter_delta_v1"
 
 

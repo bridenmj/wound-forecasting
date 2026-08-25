@@ -1,5 +1,6 @@
-model	paper_role	original_path	filename	size_bytes	sha256	config	external_uri	status
-llama_adapter	final held-out evaluation	/content/drive/MyDrive/Heals_Winter_24/release_checkpoints/llama_adapter/wound_llama_adapter_delta_v1.pth	wound_llama_adapter_delta_v1.pth	UNKNOWN	UNKNOWN	base=Emma02/LVM_ckpts; format=wound_forecasting_adapter_delta_v1; 84 tensors		verified_delta_needs_hash_and_hosting
-dyneode	final variable-context held-out evaluation	UNKNOWN	UNKNOWN	UNKNOWN	UNKNOWN	src/wound_forecasting/dyneode.py		needs_identification
-river	final held-out evaluation	/content/drive/MyDrive/Heals_Winter_24/RIVER/river/runs/davinci_river_vqmuse_run-driven-8-40k_final_run/checkpoints/latest.pth	latest.pth	750520754	UNKNOWN	configs/river_final.yaml		needs_hash_and_hosting
-vqmuse	shared image tokenizer	/content/drive/MyDrive/Heals_Winter_24/Shared/vq/vqvae/Emma02/vqvae_ckpts/pytorch_model.bin	pytorch_model.bin	585077729	fed960b9b88968dcaab28fd0cb28b786693b83b21fa93b1a1ad1177b3f7e9fd1	external:Emma02/vqvae_ckpts/config.json	https://huggingface.co/Emma02/vqvae_ckpts	external_dependency
+model	paper_role	filename	config	external_uri	status
+llama_adapter	final held-out evaluation	wound_llama_adapter_delta_v1.pth	configs/llama_adapter_final.yaml	https://huggingface.co/bridenmj/wound-llama-adapter	verified_and_hosted
+stylegan	DyneODE latent decoder	network-snapshot-005000_jmir_50000_redo_.pt	generator_config.json	https://huggingface.co/bridenmj/wound-stylegan	verified_and_hosted
+dyneode	final variable-context held-out evaluation	best_val_checkpoint.pth	configs/dyneode_final.yaml	https://huggingface.co/bridenmj/wound-dyneode	verified_and_hosted
+river	final held-out evaluation	see model repository	configs/river_final.yaml	https://huggingface.co/bridenmj/wound-river	verified_and_hosted
+vqmuse	shared image tokenizer	pytorch_model.bin	external upstream config	https://huggingface.co/Emma02/vqvae_ckpts	external_dependency

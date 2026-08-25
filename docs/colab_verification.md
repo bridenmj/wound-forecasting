@@ -15,7 +15,7 @@ Use a GPU runtime and choose **one** setup method.
 %cd /content/wound-forecasting
 !test -f pyproject.toml && echo "Repository root confirmed"
 !python -m pip install -U pip
-!python -m pip install -e ".[dev,viz]"
+!python -m pip install -e ".[dev,all]"
 !python scripts/verify_environment.py --device cuda
 !pytest -q
 ```
@@ -37,7 +37,7 @@ assert Path("pyproject.toml").is_file(), "Not at the repository root"
 assert Path("scripts/verify_environment.py").is_file(), "Verifier is missing"
 
 !python -m pip install -U pip
-!python -m pip install -e ".[dev,viz]"
+!python -m pip install -e ".[dev,all]"
 !python scripts/verify_environment.py --device cuda
 !pytest -q
 ```
@@ -48,13 +48,19 @@ This layer uses synthetic tensors and requires neither data nor checkpoints.
 ## 2. Artifact identity checks
 
 Mount Drive or authenticate to a private artifact host. Before loading a weight,
-compare its size and SHA-256 value with `artifacts/checkpoints/manifest.tsv`:
+confirm its filename, source repository, and recorded model configuration
+against `artifacts/checkpoints/manifest.tsv`. For a private archival copy, also
+record and compare its byte size outside the public repository:
 
 ```python
 from google.colab import drive
 drive.mount("/content/drive")
 
-!sha256sum /path/to/checkpoint.pth
+from pathlib import Path
+
+checkpoint = Path("/path/to/checkpoint.pth")
+print("Filename:", checkpoint.name)
+print("Size bytes:", checkpoint.stat().st_size)
 ```
 
 Do not proceed when the architecture/configuration and checkpoint identity do
@@ -150,6 +156,11 @@ Only after inference passes, run a tiny training job with:
 The objective is to catch imports, paths, device placement, and serialization
 errors. It is not intended to reproduce convergence.
 
+The DyneODE and LLaMA training commands both expose `--smoke-test`, which limits
+the run to a minimal training pass while retaining the real construction and
+checkpoint paths. River's upstream trainer can be bounded with its own step
+configuration before invoking `scripts/train_river.py`.
+
 ## Hugging Face artifact policy
 
 Use separate private repositories for weights and any authorized data. Prefer a
@@ -167,7 +178,7 @@ StyleGAN/e4e components, River, VQ-MUSE, and all bundled dependencies permit the
 specific form of redistribution. Upload only project-owned deltas or adapters
 when the base-model license requires users to obtain upstream weights directly.
 
-Record every hosted artifact's repository, revision/commit, filename, byte size,
-and SHA-256 value in `artifacts/checkpoints/manifest.tsv`. Temporary hosting for
+Record every hosted artifact's repository, revision/commit, filename, byte
+size, and configuration in `artifacts/checkpoints/manifest.tsv`. Temporary hosting for
 several months is useful for verification, but the paper should not depend on an
 undocumented expiring URL.
