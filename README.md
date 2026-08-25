@@ -1,15 +1,13 @@
 # Wound Forecasting
 
-Research code and paper-era provenance for longitudinal wound-image forecasting
+Implementation and evaluation framework for longitudinal wound-image forecasting
 with LLaMA-Adapter, DyneODE, and River.
 
 ## Repository status
 
-This public repository contains the cleaned, reusable implementation and
-reproducibility metadata extracted from the research project. Complete
-exploratory notebooks and historical source archives remain privately retained
-in Google Drive; they are not required for the public package tests or shared
-evaluation utilities.
+This repository provides model components, configuration, dataset split logic,
+evaluation metrics, visualization utilities, and command-line workflows for
+training and evaluating longitudinal wound-forecasting systems.
 
 ## Current structure
 
@@ -17,26 +15,27 @@ evaluation utilities.
 wound-forecasting/
 ├── artifacts/
 │   └── checkpoints/     # Metadata only; weights are not committed
-├── docs/                # Audit and extraction documentation
+├── docs/                # Architecture and reproducibility documentation
 ├── results/
 │   ├── figures/         # Final selected publication figures
 │   └── metrics/         # Portable final results
 ├── scripts/             # Reproducible command-line entry points
-├── src/                 # Clean shared Python package
+├── src/                 # Python package
 └── tests/               # Lightweight correctness checks
 ```
 
-## Public-release scope
+## Project scope
 
-The repository is intended to show the full scientific design without requiring
-readers to reverse-engineer exploratory notebooks:
+The repository exposes the components required to understand, test, and extend
+the forecasting system:
 
-- model definitions, final configurations, split logic, and evaluation code are
-  public;
-- compact reproducible entry points will live under `scripts/`;
-- the complete paper-era notebooks remain privately archived as provenance;
-- raw clinical images, checkpoints, credentials, and machine-specific paths are
-  excluded.
+- model definitions, final configurations, split logic, and evaluation code;
+- reproducible command-line entry points under `scripts/`;
+- automated tests for core model, manifest, and metric behavior;
+- external artifact boundaries for datasets and model weights.
+
+Credentials, machine-specific paths, datasets, and model checkpoints are not
+committed to the source repository.
 
 The public API currently includes subject-level manifest selection, KID, and
 targetwise PSNR/SSIM, the final variable-context DyneODE architecture, and the
@@ -51,7 +50,7 @@ python -m pip install -e ".[dev]"
 pytest
 ```
 
-For a clean Google Colab verification—from synthetic import tests through one
+For Google Colab verification—from synthetic import tests through one
 real trajectory, checkpoint loading, metric regression, and a one-step training
 smoke test—follow [docs/colab_verification.md](docs/colab_verification.md).
 
