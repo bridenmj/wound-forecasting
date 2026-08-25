@@ -5,12 +5,37 @@ historical checkpoint or dataset layout is compatible.
 
 ## 1. Fresh runtime and package tests
 
-Use a GPU runtime, clone the public repository, and install it from the checkout:
+Use a GPU runtime and choose **one** setup method.
+
+### A. Clone after the repository is published
 
 ```python
 !nvidia-smi
 !git clone YOUR_REPOSITORY_URL wound-forecasting
-%cd wound-forecasting
+%cd /content/wound-forecasting
+!test -f pyproject.toml && echo "Repository root confirmed"
+!python -m pip install -U pip
+!python -m pip install -e ".[dev,viz]"
+!python scripts/verify_environment.py --device cuda
+!pytest -q
+```
+
+Do not continue if cloning or `%cd` fails. The installation output must say
+`Obtaining file:///content/wound-forecasting`, not `file:///content`.
+
+### B. Test a local archive before publishing
+
+Upload `wound-forecasting-colab.zip` through Colab's Files panel, then run:
+
+```python
+!rm -rf /content/wound-forecasting
+!unzip -q /content/wound-forecasting-colab.zip -d /content
+%cd /content/wound-forecasting
+
+from pathlib import Path
+assert Path("pyproject.toml").is_file(), "Not at the repository root"
+assert Path("scripts/verify_environment.py").is_file(), "Verifier is missing"
+
 !python -m pip install -U pip
 !python -m pip install -e ".[dev,viz]"
 !python scripts/verify_environment.py --device cuda
@@ -48,6 +73,33 @@ Test each model independently:
 5. Confirm output shape, finite values, and image range.
 
 Do not start a complete held-out evaluation until this succeeds for one sample.
+
+### LLaMA adapter-only checkpoint
+
+The released wound-specific LLaMA artifact uses format
+`wound_forecasting_adapter_delta_v1`; it is not a combined 7B checkpoint.
+Construct the model from the exact `Emma02/LVM_ckpts` base and from the
+configuration embedded in the adapter package, then load the delta with:
+
+```python
+from wound_forecasting.llama_adapter import load_adapter_delta
+
+package, load_result = load_adapter_delta(
+    model,
+    "/path/to/wound_llama_adapter_delta_v1.pth",
+    expected_base_model="Emma02/LVM_ckpts",
+)
+print("Adapter tensors:", len(package["model"]))
+print("Unmodified base tensors:", len(load_result.missing_keys))
+```
+
+Missing keys are expected to be unchanged tensors already supplied by the
+base. The loader strictly rejects unknown, skipped, or mismatched adapter
+tensors. The canonical extraction contains 84 tensors. On 2026-08-24, a
+fixed-seed regression using seed `20260824` produced exactly the same generated
+token sequence as the private complete checkpoint, with zero differing token
+positions. Private VQ tokens and generated reference tokens are retained with
+the archival checkpoint and are not part of the public repository.
 
 ## 4. Real-data smoke test
 
@@ -119,4 +171,3 @@ Record every hosted artifact's repository, revision/commit, filename, byte size,
 and SHA-256 value in `artifacts/checkpoints/manifest.tsv`. Temporary hosting for
 several months is useful for verification, but the paper should not depend on an
 undocumented expiring URL.
-

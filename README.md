@@ -103,12 +103,27 @@ python scripts/plot_sequence_grid.py sequence.pt --output sequence.png
   context-conditioned vector field, broadcast-W validation, and conditioned ODE
   integration from the final variable-context experiment.
 - `wound_forecasting.llama_adapter` contains only this project's deterministic
-  suffix-generation and VQ decoding additions. The upstream LLaMA-Adapter
-  project is not presented as original work.
+  suffix-generation, strict adapter-delta loading, and VQ decoding additions.
+  The upstream LLaMA-Adapter project is not presented as original work.
 - `paper_snapshot/source/river` preserves the River implementation and final
   project changes; `configs/river_final.yaml` and `scripts/train_river.py`
   provide the cleaner public interface.
 
 ## Data and weights
 
-Raw wound images, latent inversions, HDF5 shards, W&B runs, and model checkpoints are deliberately excluded from Git. See `artifacts/checkpoints/manifest.tsv` and `docs/source_snapshot_audit.md`.
+Raw wound images, latent inversions, HDF5 shards, W&B runs, and model checkpoints
+are deliberately excluded from Git. See `artifacts/checkpoints/manifest.tsv`
+and `docs/source_snapshot_audit.md`.
+
+The wound-specific LLaMA artifact is distributed as an adapter delta rather
+than a combined 7B checkpoint. Construct the matching architecture from the
+upstream `Emma02/LVM_ckpts` base, then overlay
+`wound_llama_adapter_delta_v1.pth` with
+`wound_forecasting.llama_adapter.load_adapter_delta`. The extracted artifact
+contains 84 project-trained tensors. In a fixed-seed regression against the
+private archival checkpoint, base plus adapter reproduced the generated token
+sequence exactly (zero differing token positions). The full base checkpoint,
+private verification inputs, and reference tokens are not committed.
+
+VQ-MUSE is also an external dependency and should be obtained from
+`Emma02/vqvae_ckpts`; this repository does not mirror its weights.
