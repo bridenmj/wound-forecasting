@@ -1,10 +1,11 @@
 # Repository extraction plan
 
-## Phase 1: frozen provenance
+## Phase 1: private provenance and public identities
 
 - Preserve the three final notebooks privately in Google Drive without editing
   them; do not distribute them through Git.
-- Preserve captured source trees and source-location manifests.
+- Preserve historical source trees privately and record upstream identities in
+  the public provenance documentation.
 - Record canonical checkpoint identities and hashes.
 - Export final metrics to portable JSON/CSV.
 - Add only final selected manuscript and supplemental figures.
@@ -21,12 +22,14 @@
 
 - Extract DyneODE's variable-context GRU encoder and conditioned ODE solver.
 - Isolate LLaMA-Adapter dataset, prompting, generation, and evaluation code.
-- Package River with its `Shared.vq` dependency or replace the absolute cross-project import.
+- Keep River and `Shared.vq` external while accepting their locations through
+  explicit command-line arguments.
 - Define environment files from actual imports and verified versions.
 
 ## Phase 4: reproducible commands
 
 - Add dataset-manifest preparation commands.
 - Add one evaluation entry point per model.
-- Add figure-generation scripts that consume saved results rather than rerunning inference.
+- Add figure-generation scripts that consume saved results rather than
+  rerunning inference.
 - Verify a clean checkout without raw data or local Google Drive paths.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Public entry point for the captured River training implementation."""
+"""Public entry point for an external River training implementation."""
 
 import argparse
 import runpy
@@ -10,6 +10,15 @@ from pathlib import Path
 
 def main() -> None:
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--river-source",
+        required=True,
+        help="Path to the River source tree containing train.py",
+    )
+    parser.add_argument(
+        "--shared-source",
+        help="Optional parent added to Python's path for Shared dependencies",
+    )
     parser.add_argument("--run-name", required=True)
     parser.add_argument("--config", default="configs/river_final.yaml")
     parser.add_argument("--data-root", required=True)
@@ -19,10 +28,20 @@ def main() -> None:
     parser.add_argument("--wandb", action="store_true")
     args = parser.parse_args()
 
-    root = Path(__file__).resolve().parents[1]
-    river = root / "paper_snapshot" / "source" / "river"
-    shared_parent = root / "paper_snapshot" / "source"
-    sys.path[:0] = [str(river), str(shared_parent)]
+    river = Path(args.river_source).expanduser().resolve()
+    train_script = river / "train.py"
+    if not train_script.is_file():
+        raise FileNotFoundError(f"River training entry point not found: {train_script}")
+
+    import_paths = [str(river)]
+    if args.shared_source:
+        shared_parent = Path(args.shared_source).expanduser().resolve()
+        if not shared_parent.is_dir():
+            raise FileNotFoundError(
+                f"Shared dependency directory not found: {shared_parent}"
+            )
+        import_paths.append(str(shared_parent))
+    sys.path[:0] = import_paths
     config = Path(args.config).read_text(encoding="utf-8").replace(
         "${DATA_ROOT}", str(Path(args.data_root).resolve())
     )
@@ -30,7 +49,7 @@ def main() -> None:
         resolved_config = Path(directory) / "river_final.yaml"
         resolved_config.write_text(config, encoding="utf-8")
         forwarded = [
-            str(river / "train.py"),
+            str(train_script),
             "--run-name",
             args.run_name,
             "--config",
@@ -44,7 +63,7 @@ def main() -> None:
         if args.wandb:
             forwarded.append("--wandb")
         sys.argv = forwarded
-        runpy.run_path(str(river / "train.py"), run_name="__main__")
+        runpy.run_path(str(train_script), run_name="__main__")
 
 
 if __name__ == "__main__":

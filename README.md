@@ -1,26 +1,20 @@
 # Wound Forecasting
 
-Research code and paper-era provenance for longitudinal wound-image forecasting with LLaMA-Adapter, DyneODE, and River.
+Research code and paper-era provenance for longitudinal wound-image forecasting
+with LLaMA-Adapter, DyneODE, and River.
 
 ## Repository status
 
-This repository is organized in two layers:
-
-1. `paper_snapshot/` preserves supporting source used to produce the manuscript
-   results; the complete exploratory notebooks are retained privately in Google
-   Drive.
-2. `src/` contains the cleaned, reusable implementation extracted from that snapshot.
-
-The paper snapshot is intentionally frozen before any notebook cleanup or path refactoring. It is not expected to run on a new machine without the externally managed datasets and model weights described under `artifacts/`.
+This public repository contains the cleaned, reusable implementation and
+reproducibility metadata extracted from the research project. Complete
+exploratory notebooks and historical source archives remain privately retained
+in Google Drive; they are not required for the public package tests or shared
+evaluation utilities.
 
 ## Current structure
 
 ```text
 wound-forecasting/
-├── paper_snapshot/
-│   ├── notebooks/       # Optional local copies; ignored by Git
-│   ├── evaluation/      # Paper-era standalone evaluation helpers
-│   └── source/          # Source trees captured from Google Drive
 ├── artifacts/
 │   └── checkpoints/     # Metadata only; weights are not committed
 ├── docs/                # Audit and extraction documentation
@@ -31,13 +25,6 @@ wound-forecasting/
 ├── src/                 # Clean shared Python package
 └── tests/               # Lightweight correctness checks
 ```
-
-## Important provenance warning
-
-The standalone `paper_snapshot/evaluation/metrics.py` predates the final
-targetwise PSNR/SSIM correction. Use `wound_forecasting.metrics` for new work.
-Frozen files under `paper_snapshot/` are provenance records and are not edited
-in place.
 
 ## Public-release scope
 
@@ -51,10 +38,11 @@ readers to reverse-engineer exploratory notebooks:
 - raw clinical images, checkpoints, credentials, and machine-specific paths are
   excluded.
 
-The cleaned API currently includes subject-level manifest selection, KID, and
+The public API currently includes subject-level manifest selection, KID, and
 targetwise PSNR/SSIM, the final variable-context DyneODE architecture, and the
-project-specific LLaMA-Adapter generation boundary. River's captured training
-implementation is exposed through a parameterized public entry point.
+project-specific LLaMA-Adapter generation boundary. River's final configuration
+and a parameterized launcher are included; the launcher expects the external
+River source tree to be supplied explicitly.
 
 ## Install for development
 
@@ -84,6 +72,7 @@ Launch the final River training configuration without a hard-coded Colab path:
 
 ```bash
 python scripts/train_river.py \
+  --river-source /path/to/river/source \
   --run-name final-river \
   --config configs/river_final.yaml \
   --data-root /path/to/prepared/data \
@@ -105,15 +94,15 @@ python scripts/plot_sequence_grid.py sequence.pt --output sequence.png
 - `wound_forecasting.llama_adapter` contains only this project's deterministic
   suffix-generation, strict adapter-delta loading, and VQ decoding additions.
   The upstream LLaMA-Adapter project is not presented as original work.
-- `paper_snapshot/source/river` preserves the River implementation and final
-  project changes; `configs/river_final.yaml` and `scripts/train_river.py`
-  provide the cleaner public interface.
+- `configs/river_final.yaml` records the final River configuration, while
+  `scripts/train_river.py` provides a path-parameterized interface to an
+  externally managed River source checkout.
 
 ## Data and weights
 
 Raw wound images, latent inversions, HDF5 shards, W&B runs, and model checkpoints
 are deliberately excluded from Git. See `artifacts/checkpoints/manifest.tsv`
-and `docs/source_snapshot_audit.md`.
+for the canonical artifact identities and external dependencies.
 
 The wound-specific LLaMA artifact is distributed as an adapter delta rather
 than a combined 7B checkpoint. Construct the matching architecture from the
