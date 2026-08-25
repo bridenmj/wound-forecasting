@@ -101,8 +101,22 @@ python scripts/plot_sequence_grid.py sequence.pt --output sequence.png
 ## Data and weights
 
 Raw wound images, latent inversions, HDF5 shards, W&B runs, and model checkpoints
-are deliberately excluded from Git. See `artifacts/checkpoints/manifest.tsv`
-for the canonical artifact identities and external dependencies.
+are deliberately excluded from Git. Model artifacts and prepared data are
+hosted separately on Hugging Face so that the source repository remains small.
+See `artifacts/checkpoints/manifest.tsv` for the canonical artifact identities
+and external dependencies.
+
+| Artifact | Hugging Face repository | Contents |
+|---|---|---|
+| LLaMA-Adapter | [bridenmj/wound-llama-adapter](https://huggingface.co/bridenmj/wound-llama-adapter) | Wound-specific 84-tensor adapter delta |
+| StyleGAN | [bridenmj/wound-stylegan](https://huggingface.co/bridenmj/wound-stylegan) | Wound-domain StyleGAN generator and configuration |
+| DyneODE | [bridenmj/wound-dyneode](https://huggingface.co/bridenmj/wound-dyneode) | Final variable-context DyneODE checkpoint and configuration |
+| River | [bridenmj/wound-river](https://huggingface.co/bridenmj/wound-river) | River-only weights and final configuration; VQ-MUSE weights are excluded |
+| Processed data | [bridenmj/porcine-wound-forecasting-processed](https://huggingface.co/datasets/bridenmj/porcine-wound-forecasting-processed) | Forthcoming processed images and model-ready derived data |
+
+These repositories remain private while release permissions and licensing are
+being finalized. The links will become accessible when their respective
+repositories are published.
 
 The wound-specific LLaMA artifact is distributed as an adapter delta rather
 than a combined 7B checkpoint. Construct the matching architecture from the
@@ -115,4 +129,6 @@ sequence exactly (zero differing token positions). The full base checkpoint,
 private verification inputs, and reference tokens are not committed.
 
 VQ-MUSE is also an external dependency and should be obtained from
-`Emma02/vqvae_ckpts`; this repository does not mirror its weights.
+[`Emma02/vqvae_ckpts`](https://huggingface.co/Emma02/vqvae_ckpts); this
+repository does not mirror its weights. The matching LVM base checkpoint is
+available from [`Emma02/LVM_ckpts`](https://huggingface.co/Emma02/LVM_ckpts).
