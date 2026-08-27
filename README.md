@@ -1,170 +1,217 @@
-# Wound Forecasting
+# Longitudinal Wound Progression Modeling Under Sparse Sampling
 
-Implementation and evaluation framework for longitudinal wound-image forecasting
-with LLaMA-Adapter, DyneODE, and River.
+### A Comparative Study of Discrete and Continuous Generative Frameworks
 
-## Repository status
+[![Models](https://img.shields.io/badge/%F0%9F%A4%97%20Models-Wound%20Forecasting-yellow)](https://huggingface.co/bridenmj)
+[![Dataset](https://img.shields.io/badge/%F0%9F%A4%97%20Dataset-Processed%20Porcine%20Wounds-yellow)](https://huggingface.co/datasets/bridenmj/porcine-wound-forecasting-processed)
+[![Python](https://img.shields.io/badge/Python-%E2%89%A53.10-3776AB.svg?logo=python&logoColor=white)](pyproject.toml)
+[![License](https://img.shields.io/badge/License-CC%20BY--NC%204.0-green.svg)](LICENSE.txt)
 
-This repository provides model components, configuration, dataset split logic,
-evaluation metrics, visualization utilities, and command-line workflows for
-training and evaluating longitudinal wound-forecasting systems.
+Forecasting wound healing from longitudinal images is challenging because
+follow-up observations are sparse and irregular, available datasets are small,
+and tissue repair is governed by complex biological processes. This project
+formulates wound progression as an image-sequence prediction problem and asks
+how different generative modeling strategies balance reconstruction fidelity
+against perceptual realism.
 
-## Current structure
+We compare three efficient generative frameworks—**LLaMA-Adapter**,
+**Sparsely Conditional Flow Matching (River CFM)**, and a
+**StyleGAN2-based DyneODE**—for sequential wound-image forecasting. Models are
+trained on longitudinal porcine wound images collected over a 21-day healing
+period and conditioned on early observations to generate future trajectories.
+Performance is evaluated across forecast horizons using Kernel Inception
+Distance (KID), Peak Signal-to-Noise Ratio (PSNR), Structural Similarity Index
+Measure (SSIM), and qualitative trajectory analysis.
 
-```text
-wound-forecasting/
-├── artifacts/
-│   └── checkpoints/     # Metadata only; weights are not committed
-├── docs/                # Architecture and reproducibility documentation
-├── results/
-│   ├── figures/         # Final selected publication figures
-│   └── metrics/         # Portable final results
-├── scripts/             # Reproducible command-line entry points
-├── src/                 # Python package
-└── tests/               # Lightweight correctness checks
-```
+Together, the experiments characterize a central tradeoff in small-data wound
+forecasting: models with stronger pixelwise reconstruction scores may produce
+oversmoothed or mean-like futures, while autoregressive image-token modeling
+can better preserve localized texture and perceptually plausible progression.
+The repository provides the model implementations, training and evaluation
+entry points, final configurations, subject-level split logic, processed data,
+and independently hosted model weights used in the study.
 
-## Project scope
+## Highlights
 
-The repository exposes the components required to understand, test, and extend
-the forecasting system:
+- Three generative forecasting approaches spanning autoregressive image-token
+  modeling, continuous latent dynamics, and conditional flow matching.
+- Subject-level evaluation on held-out pigs, with explicit prevention of
+  train/test leakage.
+- Support for variable-length trajectories, irregular observation times, and
+  variable-context extrapolation.
+- A shared evaluation contract for KID, targetwise PSNR, and targetwise SSIM.
+- Reproducible releases of project-trained weights and processed model inputs.
+- Automated correctness checks plus real-data integration workflows for every
+  released model stack.
 
-- model definitions, final configurations, split logic, and evaluation code;
-- reproducible command-line entry points under `scripts/`;
-- automated tests for core model, manifest, and metric behavior;
-- external artifact boundaries for datasets and model weights.
+## Forecasting frameworks
 
-Credentials, machine-specific paths, datasets, and model checkpoints are not
-committed to the source repository.
+| Framework | Representation | Forecasting mechanism | Released artifact |
+|---|---|---|---|
+| **LLaMA-Adapter** | VQ-MUSE image tokens | Autoregressive multimodal transformer with a wound-specific adapter | [Adapter delta](https://huggingface.co/bridenmj/wound-llama-adapter) |
+| **DyneODE** | StyleGAN latent space | Time-aware GRU context encoder and context-conditioned Neural ODE | [DyneODE checkpoint](https://huggingface.co/bridenmj/wound-dyneode) |
+| **River** | VQ-MUSE latent representation | Conditional flow matching for future-frame generation | [River weights](https://huggingface.co/bridenmj/wound-river) |
 
-The package includes subject-level manifest selection; the final variable-
-context DyneODE architecture, training loop, and inference pipeline; the
-wound-specific LLaMA-Adapter token dataset, adapter training, inference, and
-evaluation pipeline; River checkpoint loading and evaluation; and shared KID
-and targetwise PSNR/SSIM implementations. Upstream LVM, VQ-MUSE, StyleGAN, and
-River implementations remain explicit external dependencies.
+The wound-domain StyleGAN generator used by DyneODE is released separately at
+[`bridenmj/wound-stylegan`](https://huggingface.co/bridenmj/wound-stylegan).
 
-## Install for development
+## Held-out evaluation
+
+All three frameworks use the same unit of analysis: one generated image for
+each unique target image. Relative forecast positions are reported as H1–H4.
+The combined held-out evaluation contains 60, 40, 20, and 10 targets at those
+horizons, respectively, for 130 prediction–target pairs overall.
+
+| Model | Overall KID ↓ | PSNR ↑ | SSIM ↑ |
+|---|---:|---:|---:|
+| LLaMA-Adapter | **0.0605** | 17.0662 | 0.3211 |
+| DyneODE | 0.1880 | **18.9879** | **0.3755** |
+| River CFM | 0.1592 | 17.2617 | 0.2733 |
+
+KID is recomputed from the pooled real and generated image sets. PSNR and SSIM
+are averaged over aligned, unique prediction–target pairs rather than over
+overlapping sequence windows.
+
+## Released artifacts
+
+| Artifact | Repository | Contents |
+|---|---|---|
+| LLaMA-Adapter | [`bridenmj/wound-llama-adapter`](https://huggingface.co/bridenmj/wound-llama-adapter) | Verified 84-tensor wound-specific adapter delta |
+| StyleGAN | [`bridenmj/wound-stylegan`](https://huggingface.co/bridenmj/wound-stylegan) | Wound-domain generator and architecture configuration |
+| DyneODE | [`bridenmj/wound-dyneode`](https://huggingface.co/bridenmj/wound-dyneode) | Final variable-context checkpoint and configuration |
+| River | [`bridenmj/wound-river`](https://huggingface.co/bridenmj/wound-river) | River-only trained weights and final configuration |
+| Processed data | [`bridenmj/porcine-wound-forecasting-processed`](https://huggingface.co/datasets/bridenmj/porcine-wound-forecasting-processed) | Processed images, DyneODE inversions, River HDF5 data, and LLaMA prompts |
+
+Large model artifacts and datasets are intentionally hosted outside Git. Their
+canonical filenames and dependency boundaries are recorded in
+[`artifacts/checkpoints/manifest.tsv`](artifacts/checkpoints/manifest.tsv).
+
+## Installation
+
+Clone the repository and install the development dependencies:
 
 ```bash
+git clone https://github.com/bridenmj/wound-forecasting.git
+cd wound-forecasting
+
 python -m pip install -e ".[dev]"
-pytest
+python -m pytest -q
 ```
 
-For Google Colab verification—from synthetic import tests through one
-real trajectory, checkpoint loading, metric regression, and a one-step training
-smoke test—follow [docs/colab_verification.md](docs/colab_verification.md).
-
-## Public entry points
-
-Train and evaluate the final variable-context DyneODE model:
+Install model-specific dependencies as needed:
 
 ```bash
+python -m pip install -e ".[dyneode]"
+python -m pip install -e ".[llama]"
+python -m pip install -e ".[river]"
+```
+
+Use `.[all]` to install the shared optional dependencies for all three
+workflows.
+
+## Training and evaluation
+
+Each final framework has a path-parameterized command-line entry point:
+
+```bash
+# DyneODE
 python scripts/train_dyneode.py --help
 python scripts/evaluate_dyneode.py --help
-```
 
-Train the wound-specific LLaMA adapter without saving a duplicate 7B base
-checkpoint, then evaluate its released adapter delta:
-
-```bash
+# LLaMA-Adapter
 python scripts/train_llama_adapter.py --help
 python scripts/evaluate_llama_adapter.py --help
-```
 
-River uses its separately obtained implementation and VQ-MUSE dependency:
-
-```bash
+# River
 python scripts/train_river.py --help
 python scripts/evaluate_river.py --help
 ```
 
-Evaluate saved, one-prediction-per-target image pools consistently across all
-three models:
+The corresponding paper configurations are stored in [`configs/`](configs/).
+River and LLaMA-Adapter require their upstream implementations and VQ-MUSE
+dependencies; DyneODE requires the released StyleGAN generator and inversion
+latents. These boundaries are documented in
+[`docs/code_provenance.md`](docs/code_provenance.md).
+
+### Shared metric evaluation
+
+Previously generated image pools can be evaluated consistently across models:
 
 ```bash
-python scripts/evaluate_pools.py pools.pt --output results/metrics/model.json
+python scripts/evaluate_pools.py pools.pt \
+  --output results/metrics/model.json
 ```
 
-The input file must contain `fake_pools` and `real_pools` dictionaries keyed by
-forecast horizon. Each corresponding tensor must be aligned and shaped
-`[N, 3, H, W]`.
+The input must contain aligned `fake_pools` and `real_pools` dictionaries keyed
+by forecast horizon, with tensors shaped `[N, 3, H, W]`.
 
-Launch the final River training configuration without a hard-coded Colab path:
+### Sequence visualization
 
-```bash
-python scripts/train_river.py \
-  --river-source /path/to/river/source \
-  --run-name final-river \
-  --config configs/river_final.yaml \
-  --data-root /path/to/prepared/data \
-  --num-gpus 1
-```
-
-Create an edge-to-edge qualitative grid from a saved eight-frame tensor:
+Create an edge-to-edge eight-frame sequence grid without notebook dependencies:
 
 ```bash
 python -m pip install -e ".[viz]"
 python scripts/plot_sequence_grid.py sequence.pt --output sequence.png
 ```
 
-## Model-specific public code
+## Repository structure
 
-- `wound_forecasting.dyneode` contains the time-aware GRU context encoder,
-  context-conditioned vector field, broadcast-W validation, and conditioned ODE
-  integration from the final variable-context experiment. The adjacent data,
-  training, inference, and StyleGAN-boundary modules implement the complete
-  project workflow.
-- `wound_forecasting.llama_data`, `llama_training`, `llama_inference`, and
-  `llama_adapter` implement this project's aligned-burst tokenization,
-  autoregressive dataset, adapter-only checkpoints, deterministic generation,
-  and corrected one-prediction-per-target evaluation. The upstream
-  LLaMA-Adapter project is not presented as original work.
-- `wound_forecasting.river` provides strict River-only checkpoint loading and
-  aligned variable-length evaluation. `configs/river_final.yaml` and the two
-  River scripts provide path-parameterized interfaces to the external River
-  implementation.
+```text
+wound-forecasting/
+├── artifacts/checkpoints/   # Artifact identities and external locations
+├── configs/                 # Final model configurations
+├── docs/                    # Provenance and reproducibility documentation
+├── results/                 # Portable figures and metric outputs
+├── scripts/                 # Training, evaluation, and plotting entry points
+├── src/wound_forecasting/   # Reusable project implementation
+└── tests/                   # Core correctness and regression tests
+```
 
-## Evaluation contract
+## Reproducibility
 
-All paper-comparison evaluators use the same unit of analysis: one generated
-image for each unique target image. Relative forecast positions are reported as
-H1 through H4 even where LLaMA internally addresses absolute sequence positions
-4 through 7. The expected combined held-out counts are 60, 40, 20, and 10,
-respectively (130 targets overall). PSNR and SSIM are averaged over those unique
-prediction-target pairs; pooled KID is weighted by the available target count.
+The automated suite validates model construction, adapter-delta loading,
+subject-level manifest behavior, target alignment, horizon aggregation, and
+metric calculations. The full Colab verification procedure additionally tests
+strict checkpoint loading and one real held-out trajectory through each stack:
 
-## Data and weights
+1. DyneODE + wound-domain StyleGAN;
+2. River + VQ-MUSE;
+3. LVM base + wound-specific LLaMA adapter + VQ-MUSE.
 
-Raw wound images, latent inversions, HDF5 shards, W&B runs, and model checkpoints
-are deliberately excluded from Git. Model artifacts and prepared data are
-hosted separately on Hugging Face so that the source repository remains small.
-See `artifacts/checkpoints/manifest.tsv` for the canonical artifact identities
-and external dependencies.
+See [`docs/colab_verification.md`](docs/colab_verification.md) for the complete
+verification sequence.
 
-| Artifact | Hugging Face repository | Contents |
-|---|---|---|
-| LLaMA-Adapter | [bridenmj/wound-llama-adapter](https://huggingface.co/bridenmj/wound-llama-adapter) | Wound-specific 84-tensor adapter delta |
-| StyleGAN | [bridenmj/wound-stylegan](https://huggingface.co/bridenmj/wound-stylegan) | Wound-domain StyleGAN generator and configuration |
-| DyneODE | [bridenmj/wound-dyneode](https://huggingface.co/bridenmj/wound-dyneode) | Final variable-context DyneODE checkpoint and configuration |
-| River | [bridenmj/wound-river](https://huggingface.co/bridenmj/wound-river) | River-only weights and final configuration; VQ-MUSE weights are excluded |
-| Processed data | [bridenmj/porcine-wound-forecasting-processed](https://huggingface.co/datasets/bridenmj/porcine-wound-forecasting-processed) | Processed images, DyneODE inversion latents, and River HDF5 data |
+## Data provenance
 
-These repositories remain private while release permissions and licensing are
-being finalized. The links will become accessible when their respective
-repositories are published.
+The processed release is derived from the public longitudinal porcine
+wound-healing dataset described by Isseroff and colleagues:
 
-The wound-specific LLaMA artifact is distributed as an adapter delta rather
-than a combined 7B checkpoint. Construct the matching architecture from the
-upstream `Emma02/LVM_ckpts` base, then overlay
-`wound_llama_adapter_delta_v1.pth` with
-`wound_forecasting.llama_adapter.load_adapter_delta`. The extracted artifact
-contains 84 project-trained tensors. In a fixed-seed regression against the
-private archival checkpoint, base plus adapter reproduced the generated token
-sequence exactly (zero differing token positions). The full base checkpoint,
-private verification inputs, and reference tokens are not committed.
+- [Dataset publication](https://www.nature.com/articles/s41597-025-05921-w)
+- [Dryad source](https://doi.org/10.5061/dryad.0rxwdbsbr)
+- [CC0 1.0 Universal source dedication](https://creativecommons.org/publicdomain/zero/1.0/)
 
-VQ-MUSE is also an external dependency and should be obtained from
-[`Emma02/vqvae_ckpts`](https://huggingface.co/Emma02/vqvae_ckpts); this
-repository does not mirror its weights. The matching LVM base checkpoint is
-available from [`Emma02/LVM_ckpts`](https://huggingface.co/Emma02/LVM_ckpts).
+The source dedication, project code license, model-weight licenses, and
+third-party dependency terms are distinct. Consult each release card and
+upstream repository before reuse.
+
+## Intended use and limitations
+
+This repository is intended for research on longitudinal image forecasting,
+generative modeling, and wound-healing progression. The data depict porcine
+wounds rather than human clinical cases. Generated images are not clinical
+measurements, and the released models are not medical devices and must not be
+used for diagnosis, treatment selection, or patient care. Evaluation was
+conducted on a small subject-held-out research dataset.
+
+## License
+
+The original code and project-trained model weights produced by this project
+are licensed under the
+[Creative Commons Attribution–NonCommercial 4.0 International license](LICENSE.txt)
+(CC BY-NC 4.0).
+
+Third-party implementations, base models, tokenizers, and other external
+dependencies are not relicensed by this repository and remain subject to their
+respective licenses and terms. See
+[`docs/code_provenance.md`](docs/code_provenance.md) for project boundaries and
+upstream provenance.
