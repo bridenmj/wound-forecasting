@@ -163,6 +163,29 @@ The pretrained checkpoints are not copied into the source trees. Pass their
 downloaded directories or files through `--llama-checkpoint-dir`,
 `--vq-checkpoint-dir`, and the applicable checkpoint arguments.
 
+#### Convert the LVM base for LLaMA-Adapter
+
+The `Emma02/LVM_ckpts` release uses Hugging Face Safetensors naming, whereas
+the OpenGVLab LLaMA-Adapter runtime expects the legacy unsharded LLaMA layout.
+Convert the 7B base before loading the wound-specific adapter:
+
+```bash
+python scripts/convert_lvm_hf_to_llama_adapter.py \
+  --base-model Emma02/LVM_ckpts \
+  --output-dir artifacts/lvm_base/7B \
+  --size-key 7b
+```
+
+This creates `consolidated.00.pth` and `params.json` in the selected output
+directory. The conversion renames the Hugging Face tensors and unpermutes the
+query and key projections to match the legacy implementation. Pass that
+directory through `--llama-checkpoint-dir` when training or evaluating the
+LLaMA-Adapter workflow.
+
+The converted 7B base is large and must not be committed to Git. Only the
+conversion utility and the wound-specific adapter delta are project release
+artifacts.
+
 ## Training and evaluation
 
 Each final framework has a path-parameterized command-line entry point:
