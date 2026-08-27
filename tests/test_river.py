@@ -3,6 +3,7 @@ import torch
 from torch import nn
 
 from wound_forecasting.river import RiverVectorFieldRegressor, load_river_weights
+from wound_forecasting.vqmuse_upstream import VQMuseAutoencoder
 
 
 class TinyRiver(nn.Module):
@@ -46,3 +47,23 @@ def test_final_river_vector_field_matches_released_checkpoint_structure():
     assert "position_encoding.row_embed.weight" in state
     assert state["project_in.1.weight"].shape == (384, 256)
     assert state["project_out.4.weight"].shape == (64, 384, 3, 3)
+
+
+class TinyVQ(nn.Module):
+    def encode(self, values):
+        return values + 1, torch.tensor(0.0)
+
+    def decode(self, values):
+        return values - 1
+
+    def quantize(self, values, return_loss=False):
+        assert return_loss is False
+        return values.round(), None, None
+
+
+def test_public_vqmuse_wrapper_exposes_river_interface():
+    wrapper = VQMuseAutoencoder(TinyVQ())
+    values = torch.tensor([0.25, 1.75])
+    assert torch.equal(wrapper.encode(values), values + 1)
+    assert torch.equal(wrapper.decode(values), values - 1)
+    assert torch.equal(wrapper.quantize(values), values.round())

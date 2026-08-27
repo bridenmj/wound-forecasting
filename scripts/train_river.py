@@ -26,6 +26,7 @@ from wound_forecasting.vqmuse_upstream import load_vqmuse_autoencoder
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--vq-source", required=True)
+    parser.add_argument("--vq-checkpoint-dir", required=True)
     parser.add_argument("--config", default="configs/river_final.yaml")
     parser.add_argument("--train-data", required=True)
     parser.add_argument("--validation-data", required=True)
@@ -69,7 +70,10 @@ def main() -> None:
     )
     loader = DataLoader(train_data, batch_size=1, sampler=sampler, num_workers=0)
     validation_loader = DataLoader(validation_data, batch_size=1, num_workers=0)
-    model = RiverFlowModel(config, load_vqmuse_autoencoder(args.vq_source)).to(device)
+    model = RiverFlowModel(
+        config,
+        load_vqmuse_autoencoder(args.vq_source, args.vq_checkpoint_dir),
+    ).to(device)
     optimizer = torch.optim.AdamW(
         model.vector_field_regressor.parameters(),
         lr=float(optimizer_config["learning_rate"]),

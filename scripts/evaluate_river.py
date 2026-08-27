@@ -23,6 +23,7 @@ from wound_forecasting.vqmuse_upstream import load_vqmuse_autoencoder
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--vq-source", required=True)
+    parser.add_argument("--vq-checkpoint-dir", required=True)
     parser.add_argument("--config", default="configs/river_final.yaml")
     parser.add_argument("--data", required=True)
     parser.add_argument("--checkpoint")
@@ -33,7 +34,10 @@ def main() -> None:
     args = parser.parse_args()
     config = load_yaml_config(args.config)
     device = torch.device(args.device)
-    model = RiverFlowModel(config, load_vqmuse_autoencoder(args.vq_source))
+    model = RiverFlowModel(
+        config,
+        load_vqmuse_autoencoder(args.vq_source, args.vq_checkpoint_dir),
+    )
     checkpoint = resolve_artifact(
         args.checkpoint,
         repository=args.checkpoint_repo,
