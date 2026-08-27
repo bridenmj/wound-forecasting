@@ -257,8 +257,7 @@ This repository is intended for research on longitudinal image forecasting,
 generative modeling, and wound-healing progression. The data depict porcine
 wounds rather than human clinical cases. Generated images are not clinical
 measurements, and the released models are not medical devices and must not be
-used for diagnosis, treatment selection, or patient care. Evaluation was
-conducted on a small subject-held-out research dataset.
+used for diagnosis, treatment selection, or patient care. 
 
 ## License
 
