@@ -15,7 +15,6 @@ from pathlib import Path
 import torch
 from transformers import LlamaForCausalLM
 
-
 PARAMS_BY_MODEL = {
     "7b": {"dim": 4096, "multiple_of": 256, "n_heads": 32, "n_layers": 32, "norm_eps": 1e-6, "vocab_size": -1},
     "13b": {"dim": 5120, "multiple_of": 256, "n_heads": 40, "n_layers": 40, "norm_eps": 1e-6, "vocab_size": -1},
@@ -54,7 +53,7 @@ def unpermute(weight: torch.Tensor, *, n_heads: int, dim: int) -> torch.Tensor:
     )
 
 
-def translate_state_dict_key(key: str) -> str | None:  # noqa: C901
+def translate_state_dict_key(key: str) -> str | None:
     key = key.replace("base_model.model.", "")
     if key == "model.embed_tokens.weight":
         return "tok_embeddings.weight"
