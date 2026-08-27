@@ -154,7 +154,7 @@ layout above, the important source arguments are:
 
 | Workflow | Argument | Path |
 |---|---|---|
-| LLaMA-Adapter | `--lvm-source` | `upstream/LLaMA-Adapter` |
+| LLaMA-Adapter | `--lvm-source` | `upstream/LLaMA-Adapter/llama_adapter_v2_multimodal7b` |
 | LLaMA-Adapter | `--vq-source` | `upstream/LVM` |
 | River | `--vq-source` | `upstream/LVM` |
 | DyneODE | `--stylegan-source` | `upstream/dynode/code` |
@@ -257,7 +257,8 @@ This repository is intended for research on longitudinal image forecasting,
 generative modeling, and wound-healing progression. The data depict porcine
 wounds rather than human clinical cases. Generated images are not clinical
 measurements, and the released models are not medical devices and must not be
-used for diagnosis, treatment selection, or patient care. 
+used for diagnosis, treatment selection, or patient care. Evaluation was
+conducted on a small subject-held-out research dataset.
 
 ## License
 
