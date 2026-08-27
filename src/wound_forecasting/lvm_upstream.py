@@ -4,21 +4,28 @@ from __future__ import annotations
 
 import importlib
 import sys
+from functools import partial
 from pathlib import Path
+
+from .llama_text_adapter import WoundLLaMAAdapter
 
 
 def load_lvm_components(source_root: str | Path):
-    """Import the exact upstream modules required by this project."""
+    """Combine the public wound adapter with upstream LVM/VQ primitives."""
     root = Path(source_root).expanduser().resolve()
-    required = [root / "llama" / "llama_adapter.py", root / "vqvae_muse.py"]
+    required = [
+        root / "llama" / "llama.py",
+        root / "llama" / "utils.py",
+        root / "vqvae_muse.py",
+    ]
     missing = [str(path) for path in required if not path.is_file()]
     if missing:
         raise FileNotFoundError(f"LVM source files are missing: {missing}")
     if str(root) not in sys.path:
         sys.path.insert(0, str(root))
-    adapter_module = importlib.import_module("llama.llama_adapter")
     vq_module = importlib.import_module("vqvae_muse")
-    return adapter_module.LLaMA_adapter, vq_module.get_tokenizer_muse
+    adapter_class = partial(WoundLLaMAAdapter, upstream_source_root=root)
+    return adapter_class, vq_module.get_tokenizer_muse
 
 
 def construct_wound_llama(

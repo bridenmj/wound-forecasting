@@ -6,6 +6,7 @@ from wound_forecasting.llama_adapter import (
     ADAPTER_DELTA_FORMAT,
     load_adapter_delta,
 )
+from wound_forecasting.llama_text_adapter import TextEncoder
 
 
 class TinyAdapterModel(nn.Module):
@@ -62,3 +63,25 @@ def test_load_adapter_delta_rejects_unknown_format():
     package["format"] = "unknown"
     with pytest.raises(ValueError, match="Unsupported adapter format"):
         load_adapter_delta(TinyAdapterModel(), package)
+
+
+def test_public_text_encoder_produces_adapter_queries():
+    encoder = TextEncoder(
+        vocabulary_size=100,
+        embedding_dimension=16,
+        sequence_length=8,
+        number_of_layers=1,
+        number_of_heads=2,
+        adapter_sequence_length=4,
+        padding_index=99,
+        dropout=0.0,
+    )
+    tokens = torch.tensor([[1, 2, 3, 99, 99, 99, 99, 99]])
+    output = encoder(tokens)
+    assert output.shape == (1, 4, 16)
+    assert torch.isfinite(output).all()
+    state_keys = set(encoder.state_dict())
+    assert "encoder_blocks.0.attn.attn.in_proj_weight" in state_keys
+    assert "encoder_blocks.0.mlp.fc1.weight" in state_keys
+    assert "encoder_blocks.0.mlp.fc2.weight" in state_keys
+    assert "learned_query" in state_keys

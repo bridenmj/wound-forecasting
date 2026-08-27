@@ -128,9 +128,10 @@ python scripts/evaluate_river.py --help
 ```
 
 The corresponding paper configurations are stored in [`configs/`](configs/).
-River and LLaMA-Adapter require their upstream implementations and VQ-MUSE
-dependencies; DyneODE requires the released StyleGAN generator and inversion
-latents. These boundaries are documented in
+River requires the external VQ-MUSE tokenizer, while LLaMA-Adapter requires
+upstream LVM primitives and VQ-MUSE. DyneODE requires the released StyleGAN
+generator and inversion latents. The wound-modified architectures themselves
+are included under `src/wound_forecasting/`. These boundaries are documented in
 [`docs/code_provenance.md`](docs/code_provenance.md).
 
 ### Shared metric evaluation
