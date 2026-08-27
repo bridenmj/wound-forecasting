@@ -24,6 +24,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", default="configs/llama_adapter_final.yaml")
     parser.add_argument("--lvm-source", required=True)
+    parser.add_argument("--vq-source")
     parser.add_argument("--llama-checkpoint-dir", required=True)
     parser.add_argument("--vq-checkpoint-dir", required=True)
     parser.add_argument("--adapter", help="Local adapter-delta checkpoint")
@@ -44,7 +45,10 @@ def main() -> None:
         },
     )
     device = torch.device(config["device"])
-    adapter_class, get_vq = load_lvm_components(args.lvm_source)
+    adapter_class, get_vq = load_lvm_components(
+        args.lvm_source,
+        args.vq_source,
+    )
     vq_model = get_vq(args.vq_checkpoint_dir).to(device).eval()
     model_cfg = config["model"]
     model = construct_wound_llama(

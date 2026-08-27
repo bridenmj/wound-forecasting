@@ -88,26 +88,80 @@ canonical filenames and dependency boundaries are recorded in
 
 ## Installation
 
-Clone the repository and install the development dependencies:
+This project is an integration layer over the complete upstream research
+frameworks. Install the upstream source trees first, then install this
+repository on top. The upstream projects remain governed by their own licenses.
+
+### 1. Clone the project and upstream frameworks
 
 ```bash
 git clone https://github.com/bridenmj/wound-forecasting.git
+mkdir -p wound-forecasting/upstream
+
+# LLaMA-Adapter primitives
+git clone https://github.com/OpenGVLab/LLaMA-Adapter.git \
+  wound-forecasting/upstream/LLaMA-Adapter
+
+# LVM VQ-MUSE implementation used by LLaMA-Adapter and River
+git clone https://huggingface.co/spaces/Emma02/LVM \
+  wound-forecasting/upstream/LVM
+
+# Complete upstream River implementation
+git clone https://github.com/Araachie/river.git \
+  wound-forecasting/upstream/river
+
+# Complete upstream DyneODE/StyleGAN2 implementation
+git clone https://github.com/weihaox/dynode.git \
+  wound-forecasting/upstream/dynode
+```
+
+The upstream checkouts are retained intact. Project-trained modules and
+behavioral changes are implemented under `src/wound_forecasting/`; users do not
+need to copy project files into the upstream repositories.
+
+### 2. Install the wound-forecasting package
+
+```bash
 cd wound-forecasting
 
-python -m pip install -e ".[dev]"
+# Choose one workflow.
+python -m pip install -e ".[dyneode]"
+python -m pip install -e ".[river]"
+python -m pip install -e ".[llama]"
+
+# Or install the dependencies for every workflow.
+python -m pip install -e ".[all]"
+```
+
+For repository development and tests, add the development dependencies:
+
+```bash
+python -m pip install -e ".[all,dev]"
+python -m ruff check src scripts tests
 python -m pytest -q
 ```
 
-Install model-specific dependencies as needed:
+### 3. Download model weights and processed data
 
-```bash
-python -m pip install -e ".[dyneode]"
-python -m pip install -e ".[llama]"
-python -m pip install -e ".[river]"
-```
+Project-trained artifacts are downloaded from the repositories listed under
+[Released artifacts](#released-artifacts). The compatible external LVM and
+VQ-MUSE checkpoints are obtained separately from
+[`Emma02/LVM_ckpts`](https://huggingface.co/Emma02/LVM_ckpts) and
+[`Emma02/vqvae_ckpts`](https://huggingface.co/Emma02/vqvae_ckpts).
 
-Use `.[all]` to install the shared optional dependencies for all three
-workflows.
+The command-line tools accept explicit source and checkpoint paths. With the
+layout above, the important source arguments are:
+
+| Workflow | Argument | Path |
+|---|---|---|
+| LLaMA-Adapter | `--lvm-source` | `upstream/LLaMA-Adapter` |
+| LLaMA-Adapter | `--vq-source` | `upstream/LVM` |
+| River | `--vq-source` | `upstream/LVM` |
+| DyneODE | `--stylegan-source` | `upstream/dynode/code` |
+
+The pretrained checkpoints are not copied into the source trees. Pass their
+downloaded directories or files through `--llama-checkpoint-dir`,
+`--vq-checkpoint-dir`, and the applicable checkpoint arguments.
 
 ## Training and evaluation
 
@@ -128,10 +182,12 @@ python scripts/evaluate_river.py --help
 ```
 
 The corresponding paper configurations are stored in [`configs/`](configs/).
-River requires the external VQ-MUSE tokenizer, while LLaMA-Adapter requires
-upstream LVM primitives and VQ-MUSE. DyneODE requires the released StyleGAN
-generator and inversion latents. The wound-modified architectures themselves
-are included under `src/wound_forecasting/`. These boundaries are documented in
+The entry points combine the installed upstream frameworks with the
+wound-specific implementations in `src/wound_forecasting/` and the released
+project checkpoints. River and LLaMA-Adapter share the compatible VQ-MUSE
+runtime; DyneODE uses the StyleGAN2 implementation from the complete upstream
+DyneODE checkout, the released wound-domain generator, and the released
+inversion latents. These boundaries are documented in
 [`docs/code_provenance.md`](docs/code_provenance.md).
 
 ### Shared metric evaluation

@@ -10,19 +10,29 @@ from pathlib import Path
 from .llama_text_adapter import WoundLLaMAAdapter
 
 
-def load_lvm_components(source_root: str | Path):
-    """Combine the public wound adapter with upstream LVM/VQ primitives."""
+def load_lvm_components(
+    source_root: str | Path,
+    vq_source_root: str | Path | None = None,
+):
+    """Combine the wound adapter with separately installed upstream sources."""
     root = Path(source_root).expanduser().resolve()
+    vq_root = (
+        root
+        if vq_source_root is None
+        else Path(vq_source_root).expanduser().resolve()
+    )
     required = [
         root / "llama" / "llama.py",
         root / "llama" / "utils.py",
-        root / "vqvae_muse.py",
+        vq_root / "vqvae_muse.py",
     ]
     missing = [str(path) for path in required if not path.is_file()]
     if missing:
         raise FileNotFoundError(f"LVM source files are missing: {missing}")
     if str(root) not in sys.path:
         sys.path.insert(0, str(root))
+    if str(vq_root) not in sys.path:
+        sys.path.insert(0, str(vq_root))
     vq_module = importlib.import_module("vqvae_muse")
     adapter_class = partial(WoundLLaMAAdapter, upstream_source_root=root)
     return adapter_class, vq_module.get_tokenizer_muse

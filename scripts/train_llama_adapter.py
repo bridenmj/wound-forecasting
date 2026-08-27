@@ -24,6 +24,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", default="configs/llama_adapter_final.yaml")
     parser.add_argument("--lvm-source", required=True)
+    parser.add_argument("--vq-source")
     parser.add_argument("--llama-checkpoint-dir", required=True)
     parser.add_argument("--vq-checkpoint-dir", required=True)
     parser.add_argument("--manifest", required=True)
@@ -51,7 +52,10 @@ def main() -> None:
     torch.cuda.manual_seed_all(seed)
     device = torch.device(config["device"])
 
-    adapter_class, get_vq = load_lvm_components(args.lvm_source)
+    adapter_class, get_vq = load_lvm_components(
+        args.lvm_source,
+        args.vq_source,
+    )
     source = str(Path(args.lvm_source).expanduser().resolve())
     if source not in sys.path:
         sys.path.insert(0, source)
