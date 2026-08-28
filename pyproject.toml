@@ -7,6 +7,7 @@ name = "wound-forecasting"
 version = "0.2.0"
 description = "Training and evaluation for longitudinal wound-image forecasting"
 readme = "README.md"
+license = {file = "LICENSE.txt"}
 requires-python = ">=3.10"
 dependencies = [
     "numpy>=1.24",
@@ -20,10 +21,16 @@ dev = ["pytest>=8", "ruff>=0.6"]
 viz = ["matplotlib>=3.7", "torchvision>=0.16"]
 artifacts = ["huggingface-hub>=0.24"]
 dyneode = ["lpips>=0.1.4", "torchdiffeq>=0.2.4", "torchvision>=0.16"]
-llama = ["huggingface-hub>=0.24", "pillow>=10", "torchvision>=0.16"]
+llama = [
+    "clip @ git+https://github.com/openai/CLIP.git",
+    "huggingface-hub>=0.24",
+    "pillow>=10",
+    "torchvision>=0.16",
+]
 river = ["albumentations>=1.4", "einops>=0.7", "h5py>=3.10", "torchdiffeq>=0.2.4", "torchvision>=0.16"]
 all = [
     "albumentations>=1.4",
+    "clip @ git+https://github.com/openai/CLIP.git",
     "einops>=0.7",
     "h5py>=3.10",
     "huggingface-hub>=0.24",
