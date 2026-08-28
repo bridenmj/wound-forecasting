@@ -247,20 +247,6 @@ wound-forecasting/
 └── tests/                   # Core correctness and regression tests
 ```
 
-## Reproducibility
-
-The automated suite validates model construction, adapter-delta loading,
-subject-level manifest behavior, target alignment, horizon aggregation, and
-metric calculations. The full Colab verification procedure additionally tests
-strict checkpoint loading and one real held-out trajectory through each stack:
-
-1. DyneODE + wound-domain StyleGAN;
-2. River + VQ-MUSE;
-3. LVM base + wound-specific LLaMA adapter + VQ-MUSE.
-
-See [`docs/colab_verification.md`](docs/colab_verification.md) for the complete
-verification sequence.
-
 ## Data provenance
 
 The processed release is derived from the public longitudinal porcine
@@ -280,8 +266,7 @@ This repository is intended for research on longitudinal image forecasting,
 generative modeling, and wound-healing progression. The data depict porcine
 wounds rather than human clinical cases. Generated images are not clinical
 measurements, and the released models are not medical devices and must not be
-used for diagnosis, treatment selection, or patient care. Evaluation was
-conducted on a small subject-held-out research dataset.
+used for diagnosis, treatment selection, or patient care.
 
 ## License
 
