@@ -30,7 +30,7 @@ can better preserve localized texture and perceptually plausible progression.
 The repository provides the model implementations, training and evaluation
 entry points, final configurations, subject-level split logic, processed data,
 and independently hosted model weights used in the study.
-![Overview of the LLaMA-Adapter, DyneODE, and River CFM architectures](assets/architecture_overview.png)
+![Overview of the LLaMA-Adapter, DyneODE, and River CFM architectures](assets/arch_overview.png)
 
 ## Highlights
 
