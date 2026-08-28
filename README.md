@@ -23,7 +23,7 @@ Performance is evaluated across forecast horizons using Kernel Inception
 Distance (KID), Peak Signal-to-Noise Ratio (PSNR), Structural Similarity Index
 Measure (SSIM), and qualitative trajectory analysis.
 
-Together, the experiments characterize a central tradeoff in small-data wound
+The experiments characterize a central tradeoff in small-data wound
 forecasting: models with stronger pixelwise reconstruction scores may produce
 oversmoothed or mean-like futures, while autoregressive image-token modeling
 can better preserve localized texture and perceptually plausible progression.
