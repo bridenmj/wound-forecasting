@@ -1,7 +1,8 @@
+from types import SimpleNamespace
+
 import pytest
 import torch
 from torch import nn
-from types import SimpleNamespace
 
 from wound_forecasting.llama_adapter import (
     ADAPTER_DELTA_FORMAT,
