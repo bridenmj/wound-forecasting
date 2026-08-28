@@ -18,6 +18,8 @@ import torch
 from torch import Tensor, nn
 from torch.utils.checkpoint import checkpoint
 
+from .llama_qk_gate import install_qk_gated_attention
+
 
 class SuppressTokensLogitsProcessor:
     """Prevent reserved non-image tokens from being sampled."""
@@ -185,6 +187,7 @@ def _load_lvm_primitives(source_root: str | Path):
         sys.path.insert(0, str(root))
     llama_module = importlib.import_module("llama.llama")
     utility_module = importlib.import_module("llama.utils")
+    install_qk_gated_attention(llama_module)
     return llama_module.ModelArgs, llama_module.Transformer, utility_module.sample_top_p
 
 

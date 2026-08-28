@@ -8,6 +8,7 @@ from wound_forecasting.llama_adapter import (
     ADAPTER_DELTA_FORMAT,
     load_adapter_delta,
 )
+from wound_forecasting.llama_qk_gate import install_qk_gated_attention
 from wound_forecasting.llama_text_adapter import TextEncoder
 from wound_forecasting.lvm_upstream import load_vqmuse_checkpoint
 
@@ -104,3 +105,21 @@ def test_vqmuse_loader_uses_explicit_checkpoint_directory(tmp_path):
 
     assert result == "loaded-vq"
     assert calls == [str(tmp_path.resolve())]
+
+
+def test_qk_gate_patch_registers_checkpoint_parameter():
+    class UpstreamAttention(nn.Module):
+        def __init__(self, args):
+            super().__init__()
+            self.args = args
+
+    module = SimpleNamespace(
+        Attention=UpstreamAttention,
+        apply_rotary_emb=lambda query, key, freqs_cis: (query, key),
+    )
+    patched_class = install_qk_gated_attention(module)
+    attention = patched_class(SimpleNamespace())
+
+    assert "qk_gate" in attention.state_dict()
+    assert attention.qk_gate.ndim == 0
+    assert module.Attention is patched_class
