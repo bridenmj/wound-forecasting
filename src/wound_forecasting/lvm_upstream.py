@@ -10,6 +10,16 @@ from pathlib import Path
 from .llama_text_adapter import WoundLLaMAAdapter
 
 
+def load_vqmuse_checkpoint(vq_module, checkpoint_dir: str | Path):
+    """Load VQ-MUSE without relying on the upstream hardcoded path."""
+    checkpoint = Path(checkpoint_dir).expanduser().resolve()
+    if not checkpoint.is_dir():
+        raise FileNotFoundError(
+            f"VQ-MUSE checkpoint directory is missing: {checkpoint}"
+        )
+    return vq_module.VQGANModel.from_pretrained(str(checkpoint))
+
+
 def load_lvm_components(
     source_root: str | Path,
     vq_source_root: str | Path | None = None,
@@ -34,8 +44,9 @@ def load_lvm_components(
     if str(vq_root) not in sys.path:
         sys.path.insert(0, str(vq_root))
     vq_module = importlib.import_module("vqvae_muse")
+
     adapter_class = partial(WoundLLaMAAdapter, upstream_source_root=root)
-    return adapter_class, vq_module.get_tokenizer_muse
+    return adapter_class, partial(load_vqmuse_checkpoint, vq_module)
 
 
 def construct_wound_llama(

@@ -1,12 +1,14 @@
 import pytest
 import torch
 from torch import nn
+from types import SimpleNamespace
 
 from wound_forecasting.llama_adapter import (
     ADAPTER_DELTA_FORMAT,
     load_adapter_delta,
 )
 from wound_forecasting.llama_text_adapter import TextEncoder
+from wound_forecasting.lvm_upstream import load_vqmuse_checkpoint
 
 
 class TinyAdapterModel(nn.Module):
@@ -85,3 +87,19 @@ def test_public_text_encoder_produces_adapter_queries():
     assert "encoder_blocks.0.mlp.fc1.weight" in state_keys
     assert "encoder_blocks.0.mlp.fc2.weight" in state_keys
     assert "learned_query" in state_keys
+
+
+def test_vqmuse_loader_uses_explicit_checkpoint_directory(tmp_path):
+    calls = []
+
+    class FakeVQGANModel:
+        @classmethod
+        def from_pretrained(cls, path):
+            calls.append(path)
+            return "loaded-vq"
+
+    module = SimpleNamespace(VQGANModel=FakeVQGANModel)
+    result = load_vqmuse_checkpoint(module, tmp_path)
+
+    assert result == "loaded-vq"
+    assert calls == [str(tmp_path.resolve())]
