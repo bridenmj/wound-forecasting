@@ -65,9 +65,9 @@ horizons, respectively, for 130 prediction–target pairs overall.
 
 | Model | Overall KID ↓ | PSNR ↑ | SSIM ↑ |
 |---|---:|---:|---:|
-| LLaMA-Adapter | **0.0605** | 17.0662 | 0.3211 |
-| DyneODE | 0.1880 | **18.9879** | **0.3755** |
-| River CFM | 0.1592 | 17.2617 | 0.2733 |
+| LLaMA-Adapter | **0.123** | 16.57 | 0.322 |
+| DyneODE | 0.342 | **18.24** | **0.368** |
+| River CFM | 0.187 | 17.11 | 0.279 |
 
 KID is recomputed from the pooled real and generated image sets. PSNR and SSIM
 are averaged over aligned, unique prediction–target pairs rather than over
