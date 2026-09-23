@@ -8,7 +8,6 @@
 [![License](https://img.shields.io/badge/License-CC%20BY--NC%204.0-green.svg)](LICENSE.txt)
 
 **Michael J. Briden et al., 2026**  
-📄 **Preprint:** https://doi.org/10.2196/preprints.111274  
 🌐 **JMIR Preprints:** https://preprints.jmir.org/preprint/111274
 
 Forecasting wound healing from longitudinal images is challenging because
