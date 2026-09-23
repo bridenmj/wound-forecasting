@@ -7,6 +7,10 @@
 [![Python](https://img.shields.io/badge/Python-%E2%89%A53.10-3776AB.svg?logo=python&logoColor=white)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC%204.0-green.svg)](LICENSE.txt)
 
+**Michael J. Briden et al., 2026**  
+📄 **Preprint:** https://doi.org/10.2196/preprints.111274  
+🌐 **JMIR Preprints:** https://preprints.jmir.org/preprint/111274
+
 Forecasting wound healing from longitudinal images is challenging because
 follow-up observations are sparse and irregular, available datasets are small,
 and tissue repair is governed by complex biological processes. This project
@@ -265,10 +269,28 @@ upstream repository before reuse.
 
 This repository is intended for research on longitudinal image forecasting,
 generative modeling, and wound-healing progression. The data depict porcine
-wounds rather than human clinical cases. Generated images are not clinical
-measurements, and the released models are not medical devices and must not be
-used for diagnosis, treatment selection, or patient care.
+wounds rather than human clinical cases. 
 
+## Citation
+
+If you use this code or build upon this work, please cite:
+
+> Briden MJ, et al. Longitudinal Wound Progression Modeling Under Sparse
+> Sampling: A Comparative Study of Discrete and Continuous Generative
+> Frameworks. JMIR Preprints. 2026.
+> doi:10.2196/preprints.111274
+
+```bibtex
+@article{briden2026wound,
+  title={Longitudinal Wound Progression Modeling Under Sparse Sampling:
+         A Comparative Study of Discrete and Continuous Generative Frameworks},
+  author={Briden, Michael J. and others},
+  journal={JMIR Preprints},
+  year={2026},
+  doi={10.2196/preprints.111274},
+  url={https://doi.org/10.2196/preprints.111274}
+}
+```
 ## License
 
 The original code and project-trained model weights produced by this project
